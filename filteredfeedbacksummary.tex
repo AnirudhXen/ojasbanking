@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<style>
+  tr:nth-child(even)
+  {
+    background-color:#f2f2f2;
+  }
+  .inputTextField 
+  {
+   height: 30px;
+   width:200px;
+  }
+  #btnPosition
+  {
+   height: 36px;
+   font-size:14px;
+  }
+</style>
+</head>
+
+<body>
+<script type="text/javascript">
+
+SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function(){
+	PageLoad();
+});
+
+function getParameterByName(name) {
+    var url = window.location.href;
+	try
+	{
+		name = name.replace(/[\[\]]/g, "\\$&");
+		var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+			results = regex.exec(url);
+		if (!results) return null;
+		if (!results[2]) return '';
+		return decodeURIComponent(results[2].replace(/\+/g, " "));
+	}
+	catch(err)
+	{
+		return null;
+	}
+}
+
+function PageLoad()
+{
+	//alert('pageload');
+	var positionTitleField = document.getElementById('txtPosition');
+	var candidateNameField = document.getElementById('txtCandidate');
+	
+	var title = getParameterByName('title');
+	var candidate = getParameterByName('candidate');
+	if((title != null && title != '') && (candidate != null && candidate != ''))
+	{
+                positionTitleField .value = title ;
+		candidateNameField .value = candidate ;        
+		loadFeedbackSummary();
+	}
+}
+ xmlDocTeam = parserTeam.parseFromString(xmlResponse,"text/xml");
+console.log((new XMLSerializer()).serializeToString(xmlDocTeam));
+
+PageLoad();
+
+
+//loadFeedbackSummary();
+
+function loadFeedbackSummary() {
+	
+	var positionTitle = document.getElementById('txtPosition').value;
+	var candidateName = document.getElementById('txtCandidate').value;
+	
+	if(positionTitle == "" || positionTitle == null)
+	{
+		alert("Please enter Position Title");
+		return false;
+	}
+	
+	//function condition starts from here
+	function parseXMLResponseTeam(xmlResponse)
+{
+         var currentUserName  = _spPageContextInfo.userLoginName.toString();
+	 var parserTeam, xmlDocTeam;
+	 parserTeam = new DOMParser();
+	 xmlDocTeam = parserTeam.parseFromString(xmlResponse,"text/xml");	
+	 // issue in edge
+	 var countTeam  =  xmlDocTeam.getElementsByTagName("d:Title").length;// undefined value in edge, works well with chrome
+         var positiontitleField = document.getElementById('txtPosition').value;
+         var cnt=0;
+		 var intName , role , teamTitle; 
+
+		 function parseXMLResponse(xmlResponse)
+					{
+						var currentUserName  = _spPageContextInfo.userLoginName.toString().split("@")[0];
+						var parser, xmlDoc;
+						parser = new DOMParser();
+						xmlDoc = parser.parseFromString(xmlResponse,"text/xml");	
+						var count  =  xmlDoc.getElementsByTagName("d:Title").length;
+						var details = "";
+                           
+						var table = "<table cellpadding='10' style=' border-collapse: collapse;border-left:none;#FFF;border-right:none;'><tr style='background-color: #0078d7;color:#FFF;'><th>Title</th><th>Candidate Name</th><th>Interviewer  Name</th><th>InterviewerRole</th><th>Feedback Comments</th><th>Feedback Status</th><th>Feedback Link</th></tr>" ;
+						
+						var allowedPositions = new Array();
+						var allowedCandidates = new Array();
+						for(i = 0; i < count; i++) 
+                                                {
+							if(xmlDoc.getElementsByTagName("d:InterviewerName")[i].childNodes[0].nodeValue == currentUserName)
+							{
+								if (allowedPositions.indexOf(xmlDoc.getElementsByTagName("d:Title")[i].childNodes[0].nodeValue) == -1) {
+							       allowedPositions.push(xmlDoc.getElementsByTagName("d:Title")[i].childNodes[0].nodeValue);
+							} 
+							if (allowedCandidates.indexOf(xmlDoc.getElementsByTagName("d:CandidateName")[i].childNodes[0].nodeValue) == -1)
+                                                        {
+								allowedCandidates.push(xmlDoc.getElementsByTagName("d:CandidateName")[i].childNodes[0].nodeValue);                             
+							} 
+						}
+					}
+				
+		
+						//alert(allowedCandidates.length);
+						//alert(allowedPositions.length);
+						
+						for(i = 0; i < count; i++) {
+							
+							//if(allowedPositions.indexOf(xmlDoc.getElementsByTagName("d:Title")[i].childNodes[0].nodeValue)!= -1 
+							   //&& allowedCandidates.indexOf(xmlDoc.getElementsByTagName("d:CandidateName")[i].childNodes[0].nodeValue)!= -1 )
+							   if(role=="HiringManager")
+							{
+								
+								table += "<tr>";
+								try{
+									table += "<td>" + xmlDoc.getElementsByTagName("d:Title")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try{
+									table +="<td>" + xmlDoc.getElementsByTagName("d:CandidateName")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try{
+									table += "<td>" +xmlDoc.getElementsByTagName("d:InterviewerName")[i].childNodes[0].nodeValue + "</td>";
+									}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try{
+								table += "<td>" +xmlDoc.getElementsByTagName("d:InterviewerRole")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try{
+								table +="<td>" + xmlDoc.getElementsByTagName("d:FeedbackComments")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try {
+								table +="<td>" + xmlDoc.getElementsByTagName("d:FeedbackStatus")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try {
+								table +="<td><a href='https://ewnetworks.sharepoint.com/teams/TestIntranet/TestSubsite/SitePages/EvaluationFeedback.aspx?readID=" + xmlDoc.getElementsByTagName("d:ID")[i].childNodes[0].nodeValue + "'>link</a></td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								table +="</tr>";
+								
+							} else if(xmlDoc.getElementsByTagName("d:InterviewerRole")[i].childNodes[0].nodeValue=="HR")
+							{
+								table += "<tr>";
+								try{
+									table += "<td>" + xmlDoc.getElementsByTagName("d:Title")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try{
+									table +="<td>" + xmlDoc.getElementsByTagName("d:CandidateName")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try{
+									table += "<td>" +xmlDoc.getElementsByTagName("d:InterviewerName")[i].childNodes[0].nodeValue + "</td>";
+									}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try{
+								table += "<td>" +xmlDoc.getElementsByTagName("d:InterviewerRole")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try{
+								table +="<td>" + xmlDoc.getElementsByTagName("d:FeedbackComments")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try {
+								table +="<td>" + xmlDoc.getElementsByTagName("d:FeedbackStatus")[i].childNodes[0].nodeValue + "</td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								try {
+								table +="<td><a href='https://ewnetworks.sharepoint.com/teams/TestIntranet/TestSubsite/SitePages/EvaluationFeedback.aspx?readID=" + xmlDoc.getElementsByTagName("d:ID")[i].childNodes[0].nodeValue + "'>link</a></td>";
+								}
+								catch(err)
+								{
+									table += "<td>" + "</td>";
+								}
+								table +="</tr>";
+							}
+							//{
+								//alert(i);
+								
+							//}	
+						}
+						
+						
+						document.getElementById("myDiv").innerHTML = table;
+					}
+         for(var i=0; i<countTeam;i++)
+             {
+                    intName= xmlDocTeam.getElementsByTagName("d:email")[i].childNodes[0].nodeValue;
+                  role=xmlDocTeam.getElementsByTagName("d:Role")[i].childNodes[0].nodeValue;
+                    teamTitle=xmlDocTeam.getElementsByTagName("d:Title")[i].childNodes[0].nodeValue;        
+                  
+                     if( intName ==  currentUserName   && (role == "HiringManager" || role=="HR") &&  teamTitle == positiontitleField )  
+                       {
+                        cnt++;
+						var xmlhttp = new XMLHttpRequest();	
+						var url = "https://ewnetworks.sharepoint.com/teams/TestIntranet/TestSubsite/_api/Web/Lists/GetByTitle('CandidateFeedbackTrackingList')/Items?";						
+						if(candidateName == "" || candidateName == null)
+						    {
+						          url += "$filter=(Title eq '" + positionTitle + "')&$orderby=CandidateName";
+						    }
+						     else
+						    {
+							 url += "$filter=((Title eq '" + positionTitle + "') and (CandidateName eq '" + candidateName + "'))&$orderby=CandidateName";
+						     }
+						    //alert(url);
+						    xmlhttp.onreadystatechange = function() {
+						    if (xmlhttp.readyState == XMLHttpRequest.DONE ) {								
+							   if (xmlhttp.status == 200) {
+								   parseXMLResponse(this.responseText);
+							   }
+							   else if (xmlhttp.status == 400) {
+								  alert('There was an error 400');
+							   }
+							   else {
+								   alert('something else other than 200 was returned');
+							   }
+							}
+						  };
+						xmlhttp.open("GET", url , true);
+						xmlhttp.send();
+                        }   
+             }           if(cnt==0){
+					alert("Don't have access to see this position");
+			      }
+}
+       var xmlhttpTeam = new XMLHttpRequest();
+       var urlTeam ="https://ewnetworks.sharepoint.com/teams/TestIntranet/TestSubsite/_api/Web/Lists/GetByTitle('CandidateFeedbackTeam')/Items?"
+        xmlhttpTeam.onreadystatechange = function() {  
+             if (this.readyState==4 && this.status == 200){
+                    parseXMLResponseTeam(this.responseText);
+                 
+             }
+        };
+       xmlhttpTeam.open("GET", urlTeam , true);
+       xmlhttpTeam.send();   
+}
+</script>
